@@ -7,6 +7,11 @@ import tensorflow as tf
 import xlrd
 import math
 
+# >       X       X       X  >
+# >  w1   X  w2   X  w3
+# >     
+
+
 path = 'D:/Projects/Git2/Tensorflow_core_gym-/dataset2.xlsx'
 
 def load_data(PATH):
@@ -55,32 +60,44 @@ def separateInputAndOutput(train,test):
 
 	return np.transpose(lastColumnDeleted_train),np.transpose(firstColumsDeleted_train),np.transpose(lastColumnDeleted_test),np.transpose(firstColumsDeleted_test)
 	
-def model(x,w1,b1):
-	return tf.add(tf.matmul(w1,x),b1)
-
+def getLayerOut(x,w,b):
+	return tf.nn.relu(tf.matmul(tf.transpose(w),x) + b)
 
 train, test = load_data(path)
 xTrain, yTrain, xTest, yTest = separateInputAndOutput(train,test)
 
+
 nTrain = xTrain.shape[1]
 nTest = xTest.shape[1] 
 
-print('xTrain:',xTrain.shape,' yTrain:',yTrain.shape,' xTest:',xTest.shape,' yTest:',yTest.shape)
-print('Train Samples:',nTrain,' Test Samples',nTest)
+print("-----------------------------------------")
+print('xTrain:',xTrain.shape,'\nyTrain:',yTrain.shape,'\nxTest:',xTest.shape,'\nyTest:',yTest.shape)
+print('Train Samples:',nTrain,'\nTest Samples',nTest)
+print("-----------------------------------------")
 
-w1 = tf.Variable(tf.zeros([3,2]), dtype = tf.float64) #[nInputs,nOutputs] <-- from the layer
-w2 = tf.Variable(tf.zeros([2,2]))
-w3 = tf.Variable(tf.zeros([2,1]))
+xTrain = tf.convert_to_tensor(xTrain, dtype =tf.float32)
 
-b1 = tf.Variable(tf.zeros([2,nTrain])) # noutputs from the layer
-b2 = tf.Variable(tf.zeros([2,nTrain]))
-b3 = tf.Variable(tf.zeros([1,nTrain]))
+w1 = tf.Variable(tf.random.normal([3,2])) #[nInputs,nOutputs] <-- from the layer
+w2 = tf.Variable(tf.random.normal([2,2]))
+w3 = tf.Variable(tf.random.normal([2,1]))
+
+b1 = tf.Variable(tf.random.normal([2,nTrain])) # noutputs from the layer
+b2 = tf.Variable(tf.random.normal([2,nTrain]))
+b3 = tf.Variable(tf.random.normal([1,nTrain]))
+
+
+
+y = getLayerOut(xTrain,w1,b1)
+y1 = getLayerOut(y,w2,b2)
+y3 = getLayerOut(y1,w3,b3)
+
 
 init = tf.global_variables_initializer()
 
 with tf.Session() as sess:
 	sess.run(init)
-	print(sess.run(model(xTrain,w1,b1)))
+	print(sess.run(y3))
+	print(tf.shape(y3))
 
 
 
